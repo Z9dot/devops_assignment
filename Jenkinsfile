@@ -77,10 +77,8 @@ pipeline {
     post {
         always {
             sh '''
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
             docker rmi selenium-tests || true
-            docker system prune -f || true
+            docker image prune -f || true
             '''
         }
         failure {
