@@ -75,12 +75,7 @@ pipeline {
     }
 
     post {
-        always {
-            sh '''
-            docker rmi selenium-tests || true
-            docker image prune -f || true
-            '''
-        }
+       
         failure {
             echo 'Pipeline failed!'
         }
