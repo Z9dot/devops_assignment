@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'sample-flask-app'
+        CONTAINER_NAME = 'sample-flask-app-container'
     }
 
     stages {
@@ -21,7 +22,7 @@ pipeline {
                 script {
                     try {
                         sh '''
-                        docker run --rm -v $(pwd):/app -w /app python:3.9-slim sh -c "
+                        docker run --rm -v "$(pwd)":/app -w /app python:3.9-slim sh -c "
                             pip install flake8 && 
                             flake8 app.py --ignore=E501
                         "
@@ -48,9 +49,9 @@ pipeline {
 
         stage('Deploy App Container') {
             steps {
-                sh 'docker stop flask_app || true'
-                sh 'docker rm flask_app || true'
-                sh 'docker run -d -p 5000:5000 --name flask_app $DOCKER_IMAGE'
+                sh 'docker stop $CONTAINER_NAME || true'
+                sh 'docker rm $CONTAINER_NAME || true'
+                sh 'docker run -d -p 5000:5000 --name $CONTAINER_NAME $DOCKER_IMAGE'
                 sh 'sleep 10'
                 sh 'curl -f http://localhost:5000 || echo "Health check failed"'
             }
@@ -76,8 +77,8 @@ pipeline {
     post {
         always {
             sh '''
-            docker stop flask_app || true
-            docker rm flask_app || true
+            docker stop $CONTAINER_NAME || true
+            docker rm $CONTAINER_NAME || true
             docker rmi selenium-tests || true
             docker system prune -f || true
             '''
